@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MN Scrum Poker</title>
+  <link rel="shortcut icon" href="assets/sclogo.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  
+  <div>
+  <h1> ACE TEAM SCRUM POKER </h1> 
+  <h2> MERCURY NETWORK</h2>
+  </div>
+
+  <!-- User Name Input -->
+  <div class="fillblank">
+    <label for="user-name">Enter Your Name: </label>
+    <input type="text" id="user-name" placeholder="e.g., Stephen">
+    <button id="start-voting">Click To Start Voting</button>
+  </div>
+
+  <div>
+  <!-- Work Item Input -->
+  <div class="fillblank">
+    <label for="work-item">Enter Work Item ID: </label>
+    <input type="text" id="work-item" placeholder="e.g., CLCTUTD-10000">
+    <h3>Current Work Item: <span id="work-item-display">None</span></h3>
+  </div>
+
+  <!-- Voting Board -->
+  <div class="board">
+    <button class="card" data-value="1">1</button>
+    <button class="card" data-value="2">2</button>
+    <button class="card" data-value="3">3</button>
+    <button class="card" data-value="5">5</button>
+    <button class="card" data-value="8">8</button>
+    <button class="card" data-value="13">13+</button>
+    <button class="card" data-value="21">???</button>
+  </div>
+</div>
+
+  <!-- Show/Hide Score Button -->
+  <button id="toggle-scores" style="display: none;">Show Scores</button>
+
+
+  <!-- Vote History -->
+  <div>
+    <h2>Vote History</h2>
+    <table id="vote-history">
+      <thead>
+        <tr>
+          <th>Work Item</th>
+          <th>Name</th>
+          <th>Vote</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Historical votes will be added here -->
+      </tbody>
+    </table>
+  </div>
+
+  <div>
+    <button id="clear-votes">Clear Votes</button>
+  </div>
+
+  <!-- Winner Section -->
+<div id="winner-section">
+  <h2>¡ Winner Section !</h2>
+
+  <!-- Winner Input Form -->
+  <form id="winner-form">
+    <label for="winner-date">Date:</label>
+    <input type="date" id="winner-date" required>
+
+    <label for="winner-work-item">Work Item:</label>
+    <input type="text" id="winner-work-item" placeholder="Work Item ID" required>
+
+    <label for="winner-score">Winning Score:</label>
+    <input type="number" id="winner-score" min="1" required>
+
+    <button type="submit">Submit Winner</button>
+  </form>
+
+  <!-- Winner Display Table -->
+  <h3>Winners</h3>
+  <table id="winner-table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Work Item</th>
+        <th>Winning Score</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Winner data will be dynamically inserted here -->
+    </tbody>
+  </table>
+</div>
+
+<div class="sc-footer">
+  <a href="https://servingchampions.com" target="_blank">
+      <img src="assets/sclogo.png" alt="Serving Champions LLC Logo">
+      Website Created by Serving Champions LLC
+  </a>
+</div>
+
+
+  <!-- Firebase SDK -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>
