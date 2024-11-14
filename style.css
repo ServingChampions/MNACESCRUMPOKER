@@ -9,6 +9,10 @@
     margin-top: 20px;
 }
 
+.sc-footer {
+  margin-bottom: 0; /* Remove the extra margin */
+}
+
 .sc-footer a {
     color: #024C30;
     text-decoration: none;
@@ -54,7 +58,7 @@ body {
   padding: 20px; /* Space around edges */
 }
 
-body > * {
+body > *:not(.sc-footer) {
   max-width: 900px; /* Increase the max-width for a more spacious layout */
   width: 100%; /* Ensure full width within the limit */
   background-color: #f9f9f9; /* Slightly off-white background for a softer feel */
