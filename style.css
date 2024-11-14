@@ -341,3 +341,34 @@ tr:nth-child(even) {
   background-color: #f2f2f2; /* Light gray background for table headers */
   border-bottom: 2px solid #ccc; /* Subtle border for header row */
 }
+
+
+@media screen and (max-width: 768px) {
+  body {
+    padding: 15px;
+  }
+
+
+  #winner-section h2 {
+    font-size: 1.5rem; /* Increase font size for more emphasis */
+  }
+
+  body {
+    display: flex;
+    flex-direction: column; /* Stack content vertically */
+    align-items: center; /* Center content horizontally */
+    padding: 10px; /* Add some padding around the edges */
+    margin: 0; /* Remove any extra margin */
+    background-color: #f5f5f5; /* Keep the light gray background */
+  }
+
+  body > *:not(.sc-footer) {
+    max-width: 100%; /* Allow content to stretch to the full width */
+    width: 100%; /* Ensure content fits the screen width */
+    margin: 10px 0; /* Add smaller spacing between sections */
+    box-shadow: none; /* Remove shadow for a cleaner mobile look */
+    border-radius: 0; /* Remove border radius for seamless edge alignment */
+    padding: 15px; /* Adjust padding for better fit on small screens */
+  }
+
+}
