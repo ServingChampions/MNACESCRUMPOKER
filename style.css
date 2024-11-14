@@ -26,6 +26,22 @@
     color: #0056b3;
 }
 
+#compose-ai-general-snackbar-root {
+  display: none !important; /* Hides the injected element */
+}
+
+#intellisense-root {
+  display: none !important; /* Hides the injected element */
+}
+
+#InlineText-Plugin-Root.compose-root-component {
+  display: none !important; /* Hides the injected element */
+}
+
+#Chat-Plugin-Root.compose-root-component{
+  display: none !important; /* Hides the injected element */
+}
+
 body {
   font-family: Arial, sans-serif;
   display: flex;
