@@ -1,5 +1,5 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js';
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, getDocs, deleteDoc } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
+import { getFirestore, collection, query, orderBy, onSnapshot, serverTimestamp, getDocs, deleteDoc, setDoc, doc } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
 import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js';
 
 // Firebase configuration
@@ -35,12 +35,13 @@ const voteHistoryTable = document.getElementById('vote-history').getElementsByTa
 const userNameInput = document.getElementById('user-name');
 const startVotingButton = document.getElementById('start-voting');
 const toggleScoresButton = document.getElementById('toggle-scores');
+const clearVotesButton = document.getElementById('clear-votes');
 
 // Variables
 let currentUserName = '';
-let showScores = false; // Track whether scores are visible
+let showScores = false;
 
-// Start voting after user enters their name
+// Start voting after entering name
 startVotingButton.addEventListener('click', () => {
   currentUserName = userNameInput.value.trim();
   if (!currentUserName) {
@@ -48,11 +49,11 @@ startVotingButton.addEventListener('click', () => {
     return;
   }
   alert(`Welcome ${currentUserName}! You can now vote.`);
-  startVotingButton.style.display = 'none'; // Hide the start button
-  toggleScoresButton.style.display = 'inline'; // Show the "Show Scores" button
+  startVotingButton.style.display = 'none';
+  toggleScoresButton.style.display = 'inline';
 });
 
-// Handle card clicks (voting)
+// Handle voting
 cards.forEach(card => {
   card.addEventListener('click', async () => {
     if (!currentUserName) {
@@ -68,53 +69,40 @@ cards.forEach(card => {
       return;
     }
 
-    // Update the current work item display
     workItemDisplay.textContent = workItemId;
 
-    // Add vote to Firestore
     try {
-      await addDoc(collection(db, 'votes'), {
-        workItemId: workItemId,
+      await setDoc(doc(db, 'CLVotes', currentUserName), {
+        workItemId,
         vote: voteValue,
         user: currentUserName,
-        timestamp: serverTimestamp() // Timestamp for sorting
+        timestamp: serverTimestamp()
       });
-      console.log("Vote added to Firestore.");
+      console.log("Vote updated in Firestore.");
     } catch (error) {
-      console.error("Error adding vote: ", error);
+      console.error("Error updating vote: ", error);
     }
   });
 });
 
-// Real-time listener for votes
-const votesQuery = query(collection(db, 'votes'), orderBy('timestamp'));
+// Real-time listener
+const votesQuery = query(collection(db, 'CLVotes'), orderBy('timestamp'));
 onSnapshot(votesQuery, snapshot => {
   renderVoteHistory(snapshot);
 });
 
-// Function to render the vote table
+// Render vote table
 function renderVoteHistory(snapshot) {
-  // Clear current table
   voteHistoryTable.innerHTML = '';
-
-  // Add each vote to the table
   snapshot.forEach(doc => {
     const voteData = doc.data();
     const row = document.createElement('tr');
 
-    const workItemCell = document.createElement('td');
-    const nameCell = document.createElement('td');
-    const voteCell = document.createElement('td');
-
-    workItemCell.textContent = voteData.workItemId;
-    nameCell.textContent = voteData.user;
-
-    // Show or hide votes based on `showScores`
-    voteCell.textContent = showScores ? voteData.vote : 'Hidden';
-
-    row.appendChild(workItemCell);
-    row.appendChild(nameCell);
-    row.appendChild(voteCell);
+    row.innerHTML = `
+      <td>${voteData.workItemId}</td>
+      <td>${voteData.user}</td>
+      <td>${showScores ? voteData.vote : 'Hidden'}</td>
+    `;
     voteHistoryTable.appendChild(row);
   });
 }
@@ -123,97 +111,16 @@ function renderVoteHistory(snapshot) {
 toggleScoresButton.addEventListener('click', () => {
   showScores = !showScores;
   toggleScoresButton.textContent = showScores ? 'Hide Scores' : 'Show Scores';
-
-  // Manually re-render the table to reflect the change
-  const votesQuery = query(collection(db, 'votes'), orderBy('timestamp'));
-  onSnapshot(votesQuery, snapshot => {
-    renderVoteHistory(snapshot);
-  });
+  getDocs(votesQuery).then(snapshot => renderVoteHistory(snapshot));
 });
 
-// Function to clear votes
-async function clearVotes() {
+// Clear votes
+clearVotesButton.addEventListener('click', async () => {
   try {
-    // Retrieve all votes from Firestore and delete them
-    const votesSnapshot = await getDocs(collection(db, 'votes'));
-    votesSnapshot.forEach(async (doc) => {
-      await deleteDoc(doc.ref); // Delete each vote
-    });
-    console.log("All votes cleared from Firestore.");
+    const votesSnapshot = await getDocs(collection(db, 'CLVotes'));
+    votesSnapshot.forEach(async doc => await deleteDoc(doc.ref));
+    console.log("All votes cleared.");
   } catch (error) {
     console.error("Error clearing votes: ", error);
   }
-}
-
-// Add the clear button event listener
-const clearVotesButton = document.getElementById('clear-votes');
-clearVotesButton.addEventListener('click', clearVotes);
-
-// References to Winner Section Elements
-const winnerForm = document.getElementById('winner-form');
-const winnerTableBody = document.querySelector('#winner-table tbody');
-
-// Firestore reference for the "MNWINNERS" collection
-const winnersCollection = collection(db, 'MNWINNERS');
-
-// Listen for Winner Form Submission
-winnerForm.addEventListener('submit', async (e) => {
-  e.preventDefault(); // Prevent form from reloading the page
-
-  // Get input values
-  const date = document.getElementById('winner-date').value;
-  const workItem = document.getElementById('winner-work-item').value;
-  const score = document.getElementById('winner-score').value;
-
-  // Validate inputs
-  if (!date || !workItem || !score) {
-    alert('Please fill out all fields!');
-    return;
-  }
-
-  // Save the winner data to Firebase
-  try {
-    await addDoc(winnersCollection, {
-      date,
-      workItem,
-      score,
-      timestamp: serverTimestamp(), // For ordering
-    });
-
-    // Update the table locally after submission
-    addWinnerToTable(date, workItem, score);
-
-    // Clear the form
-    winnerForm.reset();
-  } catch (e) {
-    console.error('Error saving winner:', e);
-    alert('Error saving winner. Please try again.');
-  }
 });
-
-// Function to Add Winner Data to the Table
-function addWinnerToTable(date, workItem, score) {
-  const newRow = document.createElement('tr');
-  newRow.innerHTML = `
-    <td>${date}</td>
-    <td>${workItem}</td>
-    <td>${score}</td>
-  `;
-  winnerTableBody.appendChild(newRow);
-}
-
-// Load Winner Data from Firebase on Page Load
-async function loadWinners() {
-  try {
-    const querySnapshot = await getDocs(query(winnersCollection, orderBy('timestamp')));
-    querySnapshot.forEach((doc) => {
-      const winner = doc.data();
-      addWinnerToTable(winner.date, winner.workItem, winner.score);
-    });
-  } catch (e) {
-    console.error('Error loading winners:', e);
-  }
-}
-
-// Load winners when the page loads
-loadWinners();
