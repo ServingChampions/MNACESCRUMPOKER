@@ -92,6 +92,11 @@ button:hover {
   background-color: #024C30; /* Darker green on hover */
 }
 
+#clear-votes {
+  background-color: red;
+  color: white; /* Optional: sets the text color to white for better contrast */
+}
+
 
 .board {
   display: flex;
